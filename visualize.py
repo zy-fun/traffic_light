@@ -5,11 +5,33 @@ import numpy as np
 
 class Visualizer:
     def __init__(self,):
-        self.original_start_datetime = datetime(2023, 7, 9, 0, 0, 0)
-        self.original_end_datetime = datetime(2023, 9, 13, 0, 1, 19)
-        self.dataset = Data_Provider()
-        for lane in range(346):
-            self.car_passing_visualize(lane)
+        # self.original_start_datetime = datetime(2023, 7, 9, 0, 0, 0)
+        # self.original_end_datetime = datetime(2023, 9, 13, 0, 1, 19)
+        # self.dataset = Data_Provider()
+        # for lane in range(346):
+        #     self.car_passing_visualize(lane)
+        self.car_passing_interval_visualize()
+
+    def car_passing_interval_visualize(
+            self,
+            passing_interval_lens_path="avg_passing_lens_eps_20.npy",
+            signal_interval_lens_path="avg_signal_lens_eps_20.npy",
+            lane_num = 100,
+            ):
+        car_passing = np.load(passing_interval_lens_path)[:lane_num]       
+        signal = np.load(signal_interval_lens_path)[:lane_num]
+        x = np.arange(len(car_passing))
+        plt.bar(x, car_passing, alpha=0.5, label='car passing', color='blue')  # 第一个数组
+        plt.bar(x, signal, alpha=0.5, label='signal', color='orange')  # 第二个数组
+
+        # 添加图例和标签
+        plt.legend()
+        plt.title('bar of Two Arrays with Overlap')
+        plt.xlabel('lane')
+        plt.ylabel('interval length')
+
+        # 显示图形
+        plt.savefig("figures/car_passing_interval_visualize/fig.png")
 
     def car_passing_visualize(
             self,
