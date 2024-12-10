@@ -37,4 +37,4 @@ class Data_Provider:
         signal_vector = self.signal_matrix[lane_id, start_seconds: end_seconds]
 
         lane_type = self.lane_type_dict[self.lane_type_vector[lane_id]]
-        return car_passing_vector, signal_vector, lane_id
+        return car_passing_vector, signal_vector, lane_type
