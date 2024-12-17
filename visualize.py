@@ -12,17 +12,40 @@ class Visualizer:
         #     self.car_passing_visualize(lane)
         self.car_passing_interval_visualize()
 
+
     def car_passing_interval_visualize(
             self,
-            passing_interval_lens_path="avg_passing_lens_eps_20.npy",
-            signal_interval_lens_path="avg_signal_lens_eps_20.npy",
+            eps = 20,
             lane_num = 100,
             ):
-        car_passing = np.load(passing_interval_lens_path)[:lane_num]       
-        signal = np.load(signal_interval_lens_path)[:lane_num]
-        x = np.arange(len(car_passing))
-        plt.bar(x, car_passing, alpha=0.5, label='car passing', color='blue')  # 第一个数组
-        plt.bar(x, signal, alpha=0.5, label='signal', color='orange')  # 第二个数组
+        passing_lens_path=f"exp_cluster/avg_passing_lens_eps_{eps}.npy"
+        avg_truth_passing_lens_path=f"exp_cluster/avg_truth_passing_lens_eps_{eps}.npy"
+        max_truth_passing_lens_path=f"exp_cluster/max_truth_passing_lens_eps_{eps}.npy"
+        signal_lens_path=f"exp_cluster/avg_signal_lens_eps_{eps}.npy"
+
+        car_passing = np.load(passing_lens_path)       
+        car_passing_1 = np.load(avg_truth_passing_lens_path)
+        car_passing_2 = np.load(max_truth_passing_lens_path)
+        signal = np.load(signal_lens_path)
+
+        car_passing = np.nan_to_num(car_passing)
+        car_passing_1 = np.nan_to_num(car_passing_1)
+        car_passing_2 = np.nan_to_num(car_passing_2)
+        signal = np.nan_to_num(signal)
+
+        remove_nan_elements = lambda arr: arr[(~np.isnan(arr)) & (arr != 0)]
+        acc0 = remove_nan_elements(car_passing / signal)
+        acc1 = remove_nan_elements(car_passing_1 / signal)
+        acc2 = remove_nan_elements(car_passing_2 / signal)
+        print(len(acc0), np.mean(acc0), np.median(acc0))
+        print(len(acc1), np.mean(acc1), np.median(acc1))
+        print(len(acc2), np.mean(acc2), np.median(acc2))
+        # for c_pass in [car_passing, car_passing_1, car_passing_2]:
+        x = np.arange(lane_num)
+        plt.bar(x, car_passing[:lane_num], alpha=1, label='car passing', color='orange', zorder=4)  
+        plt.bar(x, car_passing_1[:lane_num], alpha=1, label='car passing 1', color='red', zorder=3) 
+        plt.bar(x, car_passing_2[:lane_num], alpha=1, label='car passing 2', color='blue', zorder=2) 
+        plt.bar(x, signal[:lane_num], alpha=1, label='signal', color='black', zorder=1) 
 
         # 添加图例和标签
         plt.legend()
@@ -31,7 +54,7 @@ class Visualizer:
         plt.ylabel('interval length')
 
         # 显示图形
-        plt.savefig("figures/car_passing_interval_visualize/fig.png")
+        plt.savefig(f"figures/car_passing_interval_visualize/fig_eps_{eps}.png")
 
     def car_passing_visualize(
             self,
